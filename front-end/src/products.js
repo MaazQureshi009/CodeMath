@@ -4,19 +4,19 @@ import Axios from 'axios';
 import { ref , uploadBytes , getDownloadURL } from 'firebase/storage';
 import { storage } from './cloud'
 
+import './users.css';
+
 function Products(){
 
     const Navigate = useNavigate();
 
     const [ Name , setName ] = useState(null);
     const [ Description , setDescription ] = useState(null);
-    const [ Price , setPrice ] = useState(0);
-    const [ Duration , setDuration ] = useState(0);
-    const [ Discount , setDiscount ] = useState(null);
+    const [ MainCategory , setMainCategory ] = useState(null);
+    const [ SubCategory , setSubCategory ] = useState(null);
+    const [ NewPrice , setNewPrice ] = useState(0);
+    const [ OldPrice , setOldPrice ] = useState(0);
     const [ State , setState ] = useState(null);
-    const [ Type , setType ] = useState(null);
-    const [ Course , setCourse ] = useState(null);
-    const [ Age , setAge ] = useState(null);
     const [ File , setFile ] = useState(null);
 
     //const fileref = ref(storage, "Files/");
@@ -31,55 +31,127 @@ function Products(){
                         image_url : url,
                         name : Name,
                         description : Description,
-                        price : Price,
-                        discount : Discount,
-                        type : Type,
-                        duration : Duration,
-                        course : Course,
-                        age : Age,
+                        newprice : NewPrice,
+                        oldprice : OldPrice,
+                        category : MainCategory ,
+                        tags : SubCategory,
                         state : State,
                     });
                 });
             });
             alert("Product Added");
+            Navigate("/");
         };
 
     return(
-        <div>
-            <h1>Products</h1>
-            <form>
-                <input type="text" placeholder="Name" onChange={(e) => {setName(e.target.value)}}/><br/>
-                <input type="text" placeholder="Description" onChange={(e) => {setDescription(e.target.value)}}/><br/>
-                <input type="text" placeholder="Price"onChange={(e) => {setPrice(e.target.value)}}/><br/>
-                <input type="text" placeholder="Discount" onChange={(e) => {setDiscount(e.target.value)}}/><br/>
-                <select onChange={(e) => {setType(e.target.value)}}>
-                    <option value="null">Select</option>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediated">Intermediated</option>
-                    <option value="Advanced">Advanced</option>
-                </select><br/>
-                <select onChange={(e) => {setCourse(e.target.value)}}>
-                    <option value="null">Select</option>
-                    <option value="Web-dev">Web-Development</option>
-                    <option value="App-dev">App-Development</option>
-                    <option value="Game-dev">Game-Development</option>
-                    <option value="Schooling">Schooling</option>
-                </select><br/>
-                <select onChange={(e) => {setAge(e.target.value)}}>
-                    <option value="null">Select</option>
-                    <option value="3+">3+</option>
-                    <option value="10+">10+</option>
-                    <option value="13+">13+</option>
-                    <option value="all">All</option>
-                </select><br/>
-                <input type="radio" name="status" value="True" onChange={(e) => {setState(e.target.value)}}/>ON<br/>
-                <input type="radio" name="status" value="False" onChange={(e) => {setState(e.target.value)}}/>OFF<br/>
-                <input type="file" accept="image/*" onChange={(e) => {setFile(e.target.files[0])}}/><br/>
-                <input type="text" placeholder="No.Of Weeks"onChange={(e) => {setDuration(e.target.value)}}/><br/>
-                <button onClick={upload} type="button">Submit</button>
-                <br></br>
-                <button onClick={() => {Navigate("/");}}>Switch</button>
-            </form>
+        <div className='overall'>
+            <p className='header'>Magic Corner</p>
+            <div className=" main-container">
+                <div className="container">
+                    <button className="float-start general-button active-button" 
+                        onClick={()=>{Navigate("/addWorkshops");}}>
+                        ADD WORKSHOPS
+                    </button>
+                    <button className="float-end general-button disabled-button" disabled>
+                        ADD PRODUCTS
+                    </button>
+                    <div className="container sub-container-1 float-start">
+                        <div className="container row p-0">
+                            <div className="col-12 float-start">
+                                <p className="label-attributes">
+                                    PRODUCT NAME:
+                                </p>
+                                <br></br>
+                                <input type="text" placeholder="Eg: Window Curtain" 
+                                    className="input-attributes w-100"
+                                    onChange={(event)=>{setName(event.target.value)}} required>
+                                </input>
+                            </div>
+                            <div className="col-12 float-start">
+                                <p className="label-attributes">
+                                    PRODUCT DESCRIPTION:
+                                </p>
+                                <br></br>
+                                <input type="text" placeholder="Eg: Makes Your Window Beautiful" 
+                                    className="input-attributes w-100"
+                                    onChange={(event)=>{setDescription(event.target.value)}} required>
+                                </input>
+                            </div>
+                            <div className="col-12 float-start">
+                                <p className="label-attributes">
+                                    NEW PRICE:
+                                </p>
+                                <br></br>
+                                <input type="text" placeholder="Eg: 499" 
+                                    className="input-attributes w-100"
+                                    onChange={(event)=>{setNewPrice(event.target.value)}} required>
+                                </input>
+                            </div>
+                            <div className="col-12 float-start">
+                                <p className="label-attributes">
+                                    OLD PRICE:
+                                </p>
+                                <br></br>
+                                <input type="text" placeholder="Eg: 999" 
+                                    className="input-attributes w-100"
+                                    onChange={(event)=>{setOldPrice(event.target.value)}} required>
+                                </input>
+                            </div>
+                            <div className="col-6">
+                                <p className="label-attributes">
+                                    CATEGORY:
+                                </p>
+                                <br></br>
+                                <select className="input-attributes w-100" onChange={(event)=>{setMainCategory(event.target.value)}} required>
+                                    <option className="option-attributes">SELECT</option>
+                                    <option className="option-attributes">NYLON</option>
+                                    <option className="option-attributes">WOOLEN</option>
+                                    <option className="option-attributes">LINEN</option>
+                                </select>
+                            </div>
+                            <div className="col-6">
+                                <p className="label-attributes">
+                                    TAGS:
+                                </p>
+                                <br></br>
+                                <select className="input-attributes w-100" onChange={(event)=>{setSubCategory(event.target.value)}} required>
+                                    <option className="option-attributes">SELECT</option>
+                                    <option className="option-attributes">CURTAIN</option>
+                                    <option className="option-attributes">TABLE COVER</option>
+                                </select>
+                            </div>
+                            <div className="col-12">
+                                <p className="label-attributes">
+                                    FEATURE IT ON HOME SCREEN:
+                                </p>
+                                <br></br>
+                                <select className="input-attributes w-100" onChange={(event)=>{setState(event.target.value)}} required>
+                                    <option className="option-attributes">SELECT</option>
+                                    <option className="option-attributes">ON</option>
+                                    <option className="option-attributes">OFF</option>
+                                </select>
+                            </div>
+                            <div className="col-12">
+                                <p className="label-attributes">
+                                    PRODUCT IMAGES:
+                                </p>
+                                <br></br>
+                                <input type="file" accept='image/*' 
+                                    className="input-attributes w-100"
+                                    onChange={(event)=>{setFile(event.target.files[0])}} required>
+                                </input>
+                            </div>
+                        </div>
+                        <button className="final-button general-button" onClick={upload}>
+                            <p className="final-label">
+                                ADD
+                                <i className="fi fi-br-angle-right end-icons-err"></i>
+                            </p>
+                        </button>
+                    </div>
+                </div>
+                <div className='clear'></div>
+            </div>
         </div>
     );
 };

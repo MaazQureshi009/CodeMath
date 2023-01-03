@@ -13,31 +13,23 @@ const product_schema = new mongoose.Schema({
         type : String,
         required : true,
     },
-    type : {
+    newprice : {
+        type : Number,
+        required : true,
+    },
+    oldprice : {
+        type : Number,
+    },
+    category : {
         type : String,
         required : true,
     },
-    course : {
-        type: String,
-        require : true,
-    },
-    age : {
+    tags : {
         type : String,
         required : true,
-    },
-    duration : {
-        type : Number,
-        required : true,
-    },
-    price : {
-        type : Number,
-        required : true,
-    },
-    discount : {
-        type : Number,
     },
     status : {
-        type : Boolean,
+        type : String,
         required : true,
     }
 });

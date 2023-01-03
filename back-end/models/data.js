@@ -14,8 +14,8 @@ const user_schema = new mongoose.Schema(
             type : String,
             required : true,
         },
-        usd_code : {
-            type : Number,
+        password : {
+            type : String,
             required : true,
         },
         mobile_no : {
