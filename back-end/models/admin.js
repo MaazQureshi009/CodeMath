@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const user_schema = new mongoose.Schema(
+const admin_schema = new mongoose.Schema(
     {
         image : {
             type : String,
@@ -63,16 +63,8 @@ const user_schema = new mongoose.Schema(
         orders : {
             type : Array,
         },
-        questions :{
-            Question : {
-                type : Array,
-            },
-            answer : {
-                type : Array,
-            }
-        },
     }
 );
 
-const User  = mongoose.model("User_data" , user_schema);
-module.exports = User;
+const Admin  = mongoose.model("Admin_data" , admin_schema);
+module.exports = Admin;

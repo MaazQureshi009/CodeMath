@@ -98,6 +98,12 @@
     display: block;
 }
 
+.admin-label-attributes{
+    color: #f9d486;
+    display: inline;
+    margin-left: 1em;
+}
+
 .label-log-attributes{
     margin-left: 0.5em;
     margin-bottom: 0.5em;

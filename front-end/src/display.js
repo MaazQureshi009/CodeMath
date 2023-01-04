@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate  , useLocation } from 'react-router-dom';
 import { useEffect , useState } from 'react';
 import Axios from 'axios';
+import NavBar from './navbar';
 
 function Display(){
 
@@ -18,10 +19,20 @@ function Display(){
     } , [] );
 
     const Navigate = useNavigate();
+    const Location = useLocation();
 
     return(
         <div>
             <h1>Display</h1>
+            {
+                (Location.state === null)?
+                <div><p>Not Logged</p></div>:
+                <>
+                    <NavBar />
+                    <div><p>Logged By : {Location.state.type}</p></div>
+                </>
+            }
+            <p>{Math.floor((Math.random()*9999)+1000)}</p>
             <button onClick={() =>{Navigate("/products");}}>AddProduct</button>
             <button onClick={() =>{Navigate("/Login");}}>AddUsers</button>
             <button onClick={() =>{Navigate("/addWorkshops");}}>AddWorkshops</button>
@@ -46,7 +57,9 @@ function Display(){
                             Navigate('/editProducts' , {state:{id : key._id , name: key.name , description : key.description , newprice : key.newprice , oldprice : key.oldprice , category : key.category , tags : key.tags , status : key.status}} )}}>EDIT</button>
                     </div>
                 );
-            })}
+            }
+            )
+        }
         </div>
     );
 };

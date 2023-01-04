@@ -1,6 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
+
+let mailTransporter = nodemailer.createTransport(
+    {
+        service : "gmail",
+        auth : {
+            user : "manageladen01@gmail.com",
+            pass : "ckbjwjcgtddjdadc"
+        }
+    }
+);
 
 const app = express();
 
@@ -15,6 +26,39 @@ mongoose.connect("mongodb+srv://Rishichaary:password%4012345@codemath.lfw6dor.mo
 const user_model = require('./models/data');
 const product_model = require('./models/data1');
 const workshop_model = require('./models/workshops');
+const admin_model = require('./models/admin');
+
+//--------------------------------------------------------------------User_Mailer----------------------------------------------------------------------
+
+app.post('/userMailer' , (req , res ) => {
+    let details = {
+        from :"manageladen01@gmail.com",
+        to: req.body.mail,
+        subject : "OTP To verify your magic corner account.",
+        text : "Hi "+req.body.name+","+" Welcome To Magic Corner. Use "+req.body.otp+" To validate your Magic Corner Account. Once Validated You can start using your account after getting a confirmation mail from us."
+    };
+    mailTransporter.sendMail( details , (err) =>{
+        if(err){
+            console.log(err);
+        }
+    } )
+});
+
+//--------------------------------------------------------------------Admin_Mailer----------------------------------------------------------------------
+
+app.post('/adminMailer' , (req , res ) => {
+    let details = {
+        from :"manageladen01@gmail.com",
+        to: "rishichaary1903@gmail.com",
+        subject : "OTP To verify your magic corner account.",
+        text :"Use "+req.body.otp+" To make Mr/Mrs : "+req.body.name+" as Magic Corner Admin.1"
+    };
+    mailTransporter.sendMail( details , (err) =>{
+        if(err){
+            console.log(err);
+        }
+    } )
+});
 
 //---------------------------------------------------------------Create_User-----------------------------------------------------------------------
 
@@ -37,7 +81,54 @@ app.post("/addUser" , async (req,res) => {
     });
     try{
         await user.save();
-        console.log("Success");
+        let details = {
+            from :"manageladen01@gmail.com",
+            to: req.body.mail,
+            subject : "Magic Corner Account Established",
+            text : "Hi!! "+req.body.name+", You have dived into the world of handmade things. Start Enjoying Your Shopping."
+        };
+        mailTransporter.sendMail( details , (err) =>{
+            if(err){
+                console.log(err);
+            }
+        } )
+    }catch(err){
+        console.log(err);
+    }
+});
+
+//---------------------------------------------------------------Create_Admin-----------------------------------------------------------------------
+
+app.post("/addAdmin" , async (req,res) => {
+    const user = new admin_model({
+        image : req.body.image_url,
+        full_name : req.body.name ,
+        email : req.body.email ,
+        password : req.body.password ,
+        mobile_no : req.body.mobile ,
+        gender : req.body.gender ,
+        age : req.body.age ,
+        dob : req.body.dob ,
+        "address.house_no" : req.body.house ,
+        "address.street" : req.body.street ,
+        "address.area" : req.body.area ,
+        "address.city" : req.body.city ,
+        "address.state" : req.body.state ,
+        "address.pin_code" : req.body.pincode ,
+    });
+    try{
+        await user.save();
+        let details = {
+            from :"manageladen01@gmail.com",
+            to: req.body.mail,
+            subject : "Magic Corner Account Established",
+            text : "Hi!! "+req.body.name+", You have dived into the world of handmade things. Start Enjoying Your Shopping."
+        };
+        mailTransporter.sendMail( details , (err) =>{
+            if(err){
+                console.log(err);
+            }
+        } )
     }catch(err){
         console.log(err);
     }
@@ -109,8 +200,19 @@ app.get("/getAllProducts" , ( req , res ) => {
 
 //--------------------------------------------------------------All_Users-------------------------------------------------------------------------
 
-app.get("/login" , ( req , res ) => {
-    user_model.find({name: {$ne : null} }, (err , result) => {
+app.get("/allUsers" , ( req , res ) => {
+    user_model.find({projection : {email : true} } , (err , result) => {
+        if(err){
+            console.log(err);
+        }
+        res.send(result);
+    });
+});
+
+//--------------------------------------------------------------All_Admins-------------------------------------------------------------------------
+
+app.get("/allAdmins" , ( req , res ) => {
+    admin_model.find({projection : {email : true} } , (err , result) => {
         if(err){
             console.log(err);
         }
@@ -216,6 +318,12 @@ app.post("/DeleteProduct" , async (req , res) => {
 
 app.post("/DeleteWorkshop" , async (req , res) => {
     await workshop_model.deleteOne({_id : req.body.id});
+})
+
+//---------------------------------------------------------------------------Delete_User-------------------------------------------------------
+
+app.post("/DeleteUser" , async (req , res) => {
+    await user_model.deleteOne({email : req.body.email});
 })
 
 app.listen(3001, () => {

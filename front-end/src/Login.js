@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Axios from 'axios';
 
@@ -9,44 +9,72 @@ function Login(){
     const [ Password , setPassword ] = useState( [] );
     const Navigate = useNavigate();
 
+    useEffect(
+        () =>{
+            Axios.get("http://localhost:3001/allUsers").then((response) => {
+                setUsers_list(response.data);
+            });
+            Axios.get("http://localhost:3001/allAdmins").then((response) => {
+                setAdmins_list(response.data);
+            });
+        } , []
+    );
 
     const [ Users_list , setUsers_list ] = useState([]);
+    const [ Admins_list , setAdmins_list ] = useState([]);
 
     const validate = () => {
-        for( var i=0 ; i < Users_list.length ; i++ ){
-            if( (Users_list[i].full_name) === Username || (Users_list[i].full_name) === Username ){
-                if( Users_list[i].password === Password ){
-                    alert("Success");
-                    Navigate('/');
-                    break;
-                }
-                else{alert("Invalid Password")}
+        if(Admins_list.length === 0){
+            if(Users_list.length === 0){
+                alert("Invalid Username!!");
             }
-            else if( Users_list[i].email === Username ){
-                if( Users_list[i].password === Password ){
-                    alert("Success");
-                    Navigate('/');
-                    break;
+            if(Users_list.length !== 0){
+                for(var j = 0 ; j <= Users_list.length ; j++){
+                    if( Users_list[j].email.toString() === Username.toString() ){
+                        if( Users_list[j].password.toString() === Password.toString() ){
+                            alert("Success");
+                            Navigate('/' , {state:{status:"LoggedIn" , type : "user" }});
+                            break;
+                        }
+                        else{alert("Invalid Password")}
+                    }
+                    else if( j === Users_list.length-1 ){alert("Invalid Username!!");}
                 }
-                else{alert("Invalid Password")}
             }
-            else if( Users_list[i].mobile_no === Username ){
-                if( Users_list[i].password === Password ){
-                    alert("Success");
-                    Navigate('/');
-                    break;
+        }
+        else{
+            for(var i = 0; i < Admins_list.length ; i++){
+                if( Admins_list[i].email.toString() === Username.toString() ){
+                    if( Admins_list[i].password.toString() === Password.toString() ){
+                        alert("Success");
+                        Navigate('/' , {state:{status:"LoggedIn" , type : "admin" }});
+                        break;
+                    }
+                    else{alert("Invalid Password")}
                 }
-                else{alert("Invalid Password")}
+                else if(i === Admins_list.length-1 && Users_list.length === 0){
+                    alert("Invalid Username!!");
+                }
+                else if( i === Admins_list.length-1 ){
+                    for( j = 0 ; j <= Users_list.length ; j++){
+                        if( Users_list[j].email.toString() === Username.toString() ){
+                            if( Users_list[j].password.toString() === Password.toString() ){
+                                alert("Success");
+                                Navigate('/' , {state:{status:"LoggedIn" , type : "user" }});
+                                break;
+                            }
+                            else{alert("Invalid Password")}
+                        }
+                        else if( j === Users_list.length-1 ){alert("Invalid Username!!");}
+                    }
+                }
             }
-            else if( i === Users_list.length-1 ){alert("Invalid Username!!");}
         }
     };
-
+        
     const check = () => {
-        Axios.get("http://localhost:3001/login").then((response) => {
-            setUsers_list(response.data);
-            validate();
-        })
+        validate();
+
     };
 
     return(

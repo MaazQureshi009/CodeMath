@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Axios from 'axios';
-import { ref , uploadBytes , getDownloadURL } from 'firebase/storage';
-import { storage } from './cloud'
 
 import './users.css';
 
-function Products(){
+function Products()
+{
 
     const Navigate = useNavigate();
+
+    let Captcha=0
+    let OTP = 0
+
+    const generator = () =>{
+        Captcha = Math.floor((Math.random()*9999)+1000);
+        OTP = Math.floor((Math.random()*9999)+1000);
+
+        console.log(Captcha,OTP);
+    }
 
     const [ Name , setName ] = useState(null);
     const [ Email , setEmail ] = useState(null);
@@ -24,37 +33,241 @@ function Products(){
     const [ PinCode , setPinCode ] = useState(null);
     const [ Password , setPassword ] = useState(null); 
     const [File , setFile ] = useState(null);
+    const [ Decision , setDecision ] = useState(null);
+    const [ ExistingUsers , setExistingUsers ] = useState([]);
+    const [ ExistingAdmins , setExistingAdmins ] = useState([]);
+
+    useEffect(
+        () =>{
+            Axios.get("http://localhost:3001/allUsers").then(
+                (response) => {
+                    setExistingUsers(response.data);
+                }
+            );
+            Axios.get("http://localhost:3001/allAdmins").then(
+                (response) => {
+                    setExistingAdmins(response.data);
+                }
+            );
+        } , []
+    );
 
     //const fileref = ref(storage, "Files/");
 
-    const upload = () => {
-            if (File == null) return;
-            const FileReference = ref(storage , `User_DP/${File.name+Name+Email}`);
-            uploadBytes(FileReference , File).then((FileData) => {
-                getDownloadURL(FileData.ref).then((url) => {
-                    Axios.post("http://localhost:3001/addUser" , 
-                    {
-                        image_url : url,
-                        name : Name,
-                        email : Email,
-                        mobile : Mobile,
-                        gender : Gender,
-                        dob : DOB,
-                        age : Age,
-                        house : House,
-                        street : Street,
-                        area : Area,
-                        city : City,
-                        state : State,
-                        password : Password,
-                        pincode : PinCode,
-                    });
-                });
-            });
-            alert("User Added");
-            Navigate('/Login');
-        };
+    const Decide = ()=>{
 
+        if(Decision === null){
+            if(ExistingUsers.length === 0){
+                if(ExistingAdmins.length === 0){
+                    generator();
+                    Navigate('/userVerification' , 
+                        {   
+                            state:{name:Name , email:Email , mobile:Mobile , 
+                            gender:Gender , age:Age , dob:DOB , house:House , 
+                            street:Street , area:Area , city:City , status:State ,
+                            pincode:PinCode , file:File , password:Password ,
+                            captcha:Captcha , otp:OTP}
+                        }
+                    );
+                }
+                else{
+                    for(var i =0 ; i < ExistingAdmins.length ; i++){
+                        if(Email.toString() === ExistingAdmins[i].email.toString()){
+                            alert("Admin Exist");
+                            Navigate('/Login');
+                            break;
+                        }
+                        else{
+                            generator();
+                            Navigate('/userVerification' , 
+                                {   
+                                    state:{name:Name , email:Email , mobile:Mobile , 
+                                    gender:Gender , age:Age , dob:DOB , house:House , 
+                                    street:Street , area:Area , city:City , status:State ,
+                                    pincode:PinCode , file:File , password:Password ,
+                                    captcha:Captcha , otp:OTP}
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+            else{
+                if(ExistingAdmins.length === 0){
+                    for(var j =0 ; j < ExistingUsers.length ; j++){
+                        if(Email.toString() === ExistingUsers[j].email.toString()){
+                            alert("User Exist");
+                            Navigate('/Login');
+                            break;
+                        }
+                        else{
+                            if( j === ExistingUsers.length - 1){
+                                generator();
+                                Navigate('/userVerification' ,
+                                    {   
+                                        state:{name:Name , email:Email , mobile:Mobile , 
+                                        gender:Gender , age:Age , dob:DOB , house:House , 
+                                        street:Street , area:Area , city:City , status:State ,
+                                        pincode:PinCode , file:File , password:Password ,
+                                        captcha:Captcha , otp:OTP}
+                                    } 
+                                );
+                            }
+                        }
+                    }
+                }
+                else{
+                    for(i =0 ; i < ExistingAdmins.length ; i++){
+                        if(Email.toString() === ExistingAdmins[i].email.toString()){
+                            alert("Admin Exist");
+                            Navigate('/Login');
+                            break;
+                        }
+                        else{
+                            if( i === ExistingAdmins.length - 1){
+                                for( j =0 ; j < ExistingUsers.length ; j++){
+                                    if(Email.toString() === ExistingUsers[j].email.toString()){
+                                        alert("User Exist");
+                                        Navigate('/Login');
+                                        break;
+                                    }
+                                    else{
+                                        if( j === ExistingUsers.length - 1){
+                                            generator();
+                                            Navigate('/userVerification' ,
+                                                {   
+                                                    state:{name:Name , email:Email , mobile:Mobile , 
+                                                    gender:Gender , age:Age , dob:DOB , house:House , 
+                                                    street:Street , area:Area , city:City , status:State ,
+                                                    pincode:PinCode , file:File , password:Password ,
+                                                    captcha:Captcha , otp:OTP}
+                                                } 
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            if(ExistingAdmins.length === 0){
+                if(ExistingUsers.length === 0){
+                    generator();
+                    Navigate('/adminVerification' , 
+                        {   
+                            state:{name:Name , email:Email , mobile:Mobile , 
+                            gender:Gender , age:Age , dob:DOB , house:House , 
+                            street:Street , area:Area , city:City , status:State ,
+                            pincode:PinCode , file:File , password:Password ,
+                            captcha:Captcha , otp:OTP}
+                        }
+                    );
+                }
+                else{
+                    for(var l =0 ; l < ExistingUsers.length ; l++){
+                        console.log(ExistingUsers[l]);
+                            if(Email.toString() === ExistingUsers[l].email.toString()){
+                                Axios.post("http://localhost:3001/DeleteUser" , {email:Email});
+                                generator();
+                                Navigate('/adminVerification' , 
+                                    {   
+                                        state:{name:Name , email:Email , mobile:Mobile , 
+                                        gender:Gender , age:Age , dob:DOB , house:House , 
+                                        street:Street , area:Area , city:City , status:State ,
+                                        pincode:PinCode , file:File , password:Password ,
+                                        captcha:Captcha , otp:OTP}
+                                    }
+                                );
+                                break;
+                            }
+                            else{
+                                if( l === ExistingUsers.length - 1){
+                                    generator();
+                                    Navigate('/adminVerification' , 
+                                        {   
+                                            state:{name:Name , email:Email , mobile:Mobile , 
+                                            gender:Gender , age:Age , dob:DOB , house:House , 
+                                            street:Street , area:Area , city:City , status:State ,
+                                            pincode:PinCode , file:File , password:Password ,
+                                            captcha:Captcha , otp:OTP}
+                                        }
+                                    );
+                                }
+                            }
+                    }
+                }
+            }
+            else{
+                if(ExistingUsers.length === 0){
+                    for(var k =0 ; k < ExistingAdmins.length ; k++){
+                        if(Email.toString() === ExistingAdmins[k].email.toString()){
+                            alert("Admin Exist");
+                            Navigate('/Login');
+                            break;
+                        }
+                        else{
+                            generator();
+                            Navigate('/adminVerification' , 
+                                {   
+                                    state:{name:Name , email:Email , mobile:Mobile , 
+                                    gender:Gender , age:Age , dob:DOB , house:House , 
+                                    street:Street , area:Area , city:City , status:State ,
+                                    pincode:PinCode , file:File , password:Password ,
+                                    captcha:Captcha , otp:OTP}
+                                }
+                            );
+                        }
+                    }
+                }
+                else{
+                    for( k =0 ; k < ExistingAdmins.length ; k++){
+                        if(Email.toString() === ExistingAdmins[k].email.toString()){
+                            alert("Admin Exist");
+                            Navigate('/Login');
+                            break;
+                        }
+                        else{
+                            if( k === ExistingAdmins.length - 1){
+                                for( l =0 ; l < ExistingUsers.length ; l++){
+                                    if(Email.toString() === ExistingUsers[l].email.toString()){
+                                        Axios.post("http://localhost:3001/DeleteUser" , {email:Email});
+                                        generator();
+                                        Navigate('/adminVerification' , 
+                                            {   
+                                                state:{name:Name , email:Email , mobile:Mobile , 
+                                                gender:Gender , age:Age , dob:DOB , house:House , 
+                                                street:Street , area:Area , city:City , status:State ,
+                                                pincode:PinCode , file:File , password:Password ,
+                                                captcha:Captcha , otp:OTP}
+                                            }
+                                        );
+                                        break;
+                                    }
+                                    else{
+                                        if( l === ExistingUsers.length - 1){
+                                            generator();
+                                            Navigate('/adminVerification' , 
+                                                {   
+                                                    state:{name:Name , email:Email , mobile:Mobile , 
+                                                    gender:Gender , age:Age , dob:DOB , house:House , 
+                                                    street:Street , area:Area , city:City , status:State ,
+                                                    pincode:PinCode , file:File , password:Password ,
+                                                    captcha:Captcha , otp:OTP}
+                                                }
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     return(
         <div className='overall'>
             <p className="header">Magic Corner</p>
@@ -76,7 +289,7 @@ function Products(){
                                     FULL NAME:
                                 </p>
                                 <br></br>
-                                <input type="text" placeholder="Eg: Walter" 
+                                <input type="text" placeholder="Eg: Walter White" 
                                     className="input-attributes w-100"
                                     onChange={(event)=>{setName(event.target.value)}} required>
                                 </input>
@@ -141,7 +354,7 @@ function Products(){
                         </div>
                         <div className="col-4 float-end">
                             <p className="label-attributes">
-                                STREET NO:
+                                STREET:
                             </p>
                             <br></br>
                             <input type="text" className="input-attributes w-100" placeholder="Eg: 32" 
@@ -204,7 +417,17 @@ function Products(){
                                 </input>
                             </div>
                         </div>
-                        <button className="final-button general-button" onClick={upload}>
+                        <div>
+                            <div className='col-12'>
+                                <input type='checkbox' value="Admin" 
+                                    onChange={(e) =>{ setDecision(e.target.value) }} 
+                                />
+                                <p className="admin-label-attributes" >
+                                    VERIFY AS ADMIN ( OTP will be verified with Admin MailID )
+                                </p>
+                            </div>
+                        </div>
+                        <button className="final-button general-button" onClick={Decide}>
                             <p className="final-label">
                                 REGISTER
                                 <i className="fi fi-br-angle-right end-icons-err"></i>

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-pascal-case */
 import {BrowserRouter as Router , Route , Routes} from 'react-router-dom';
 
 import './App.css';
@@ -8,6 +9,8 @@ import Login from './Login';
 import Workshops from './addWorkshops';
 import EditProduct from './editProduct'
 import EditWorkshop from './editWorkshops';
+import Upload_User from './Upload_User';
+import Upload_Admin from './Upload_Admin';
 
 function App() {
   return (
@@ -20,6 +23,8 @@ function App() {
           <Route path='/addWorkshops' element={<Workshops />} />
           <Route path='/editProducts' element={<EditProduct />} />
           <Route path='/editWorkshops' element={<EditWorkshop />} />
+          <Route path='/adminVerification' element={<Upload_Admin/>}/>
+          <Route path='/userVerification' element={<Upload_User/>}/>
           <Route path="/Login" element={<Login/>} />
         </Routes>
       </Router>
